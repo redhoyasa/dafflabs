@@ -28,8 +28,8 @@ func (c *Client) CheckPrice(ctx context.Context, productUrl string, threshold in
 		return
 	}
 
-	if threshold > item.Price {
-		msg := fmt.Sprintf("Product %s di %s harganya cuma %d", item.Name, item.Source, item.Price)
+	if item.OriginalPrice > item.CurrentPrice {
+		msg := fmt.Sprintf("Product %s di %s harganya cuma %d", item.Name, item.Source, item.CurrentPrice)
 		err = c.telegram.SendMessage(msg)
 
 		if err != nil {

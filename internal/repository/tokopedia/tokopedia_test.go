@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/ad2games/vcr-go"
 	"github.com/gocolly/colly"
+	"github.com/gojektech/heimdall/v6/hystrix"
 	"github.com/redhoyasa/dafflabs/internal/repository/product"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -18,13 +19,14 @@ func TestClient_GetItem(t *testing.T) {
 		c.Async = false
 
 		client := Client{
-			scraper: c,
+			httpClient: hystrix.NewClient(),
 		}
 
-		expected := product.Item{
-			Name:   "Matchamu Matcha Latte 20pcs",
-			Price:  100407,
-			Source: "https://www.tokopedia.com/matchamu/matchamu-matcha-latte-20pcs",
+		expected := &product.Item{
+			Name:          "Matchamu Matcha Latte 20pcs",
+			OriginalPrice: 100407,
+			CurrentPrice:  90366,
+			Source:        "https://www.tokopedia.com/matchamu/matchamu-matcha-latte-20pcs",
 		}
 
 		item, err := client.GetItem(context.Background(), "https://www.tokopedia.com/matchamu/matchamu-matcha-latte-20pcs")

@@ -2,70 +2,61 @@ package tokopedia
 
 import (
 	"context"
-	"fmt"
-	"github.com/gocolly/colly"
+	"encoding/json"
+	"github.com/gojektech/heimdall/v6/hystrix"
 	"github.com/redhoyasa/dafflabs/internal/repository/product"
+	"io/ioutil"
 	"net/http"
-	"strconv"
-	"strings"
 )
 
 type Client struct {
-	scraper *colly.Collector
+	httpClient *hystrix.Client
+}
+
+const (
+	baseUrl = "https://scraper.dafflabs.workers.dev/product/tokopedia"
+)
+
+type scraperResponse struct {
+	Data tokopediaProduct `json:"data"`
 }
 
 type tokopediaProduct struct {
-	Name  string `selector:"h1[data-testid=lblPDPDetailProductName]"`
-	Price string `selector:"h3[data-testid=lblPDPDetailProductPrice]"`
+	Name          string `json:"name"`
+	CurrentPrice  int64  `json:"current_price"`
+	OriginalPrice int64  `json:"original_price"`
+	DiscountRate  int64  `json:"discount_rate"`
 }
 
-func NewClient(scraper *colly.Collector) (*Client, error){
+func NewClient(httpClient *hystrix.Client) (*Client, error) {
 	c := new(Client)
-	c.scraper = scraper
+	c.httpClient = httpClient
 	return c, nil
 }
 
-func (c *Client) GetItem(ctx context.Context, source string) (item product.Item, err error) {
-	c.scraper.OnHTML("div[data-testid=pdpContainer]", func(e *colly.HTMLElement) {
-		product := &tokopediaProduct{}
-		e.Unmarshal(product)
+func (c *Client) GetItem(ctx context.Context, source string) (item *product.Item, err error) {
+	req, _ := http.NewRequest(http.MethodGet, baseUrl, nil)
+	q := req.URL.Query()
+	q.Add("url", source)
+	req.URL.RawQuery = q.Encode()
 
-		err = toItemModel(product, &item, source)
-		if err != nil {
-			return
-		}
-	})
-
-	c.scraper.OnError(func(r *colly.Response, err error) {
-		fmt.Println("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
-	})
-
-	err = c.scraper.Request("GET", source, nil, nil, getHeader())
+	res, err := c.httpClient.Do(req)
 	if err != nil {
-		return
+		return nil, err
 	}
+	defer res.Body.Close()
 
-	return
+	body, _ := ioutil.ReadAll(res.Body)
+	var scraperResponse scraperResponse
+	_ = json.Unmarshal(body, &scraperResponse)
+	return toItemModel(scraperResponse.Data, source), nil
 }
 
-func toItemModel(tkpdProduct *tokopediaProduct, item *product.Item, source string) error {
-	tkpdProduct.Price = strings.Replace(tkpdProduct.Price, "Rp", "", -1)
-	tkpdProduct.Price = strings.Replace(tkpdProduct.Price, ".", "", -1)
-	parsedPrice, err := strconv.ParseInt(tkpdProduct.Price, 10, 64)
-	if err != nil {
-		return err
-	}
-
+func toItemModel(tkpdProduct tokopediaProduct, source string) (item *product.Item) {
+	item = &product.Item{}
 	item.Name = tkpdProduct.Name
 	item.Source = source
-	item.Price = parsedPrice
-	return nil
-}
-
-func getHeader() http.Header {
-	header := http.Header{}
-	header.Add("Accept", "*/*")
-	header.Add("Upgrade-Insecure-Requests", "1")
-	header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36")
-	return header
+	item.CurrentPrice = tkpdProduct.CurrentPrice
+	item.OriginalPrice = tkpdProduct.OriginalPrice
+	return item
 }

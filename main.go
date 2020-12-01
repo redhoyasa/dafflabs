@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/gocolly/colly"
+	"github.com/gojektech/heimdall/v6/hystrix"
 	"github.com/labstack/echo/v4"
 	qm "github.com/quickmetrics/qckm-go"
 	telegram "github.com/redhoyasa/dafflabs/internal/client/telegram"
@@ -101,10 +101,8 @@ func createHTTPServer() (e *echo.Echo) {
 }
 
 func createScheduler() (c *cron.Cron) {
-	scraper := colly.NewCollector(
-		colly.AllowURLRevisit(),
-	)
-	tokopediaClient, err := tokopedia.NewClient(scraper)
+	hystrix.NewClient()
+	tokopediaClient, err := tokopedia.NewClient(hystrix.NewClient())
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
