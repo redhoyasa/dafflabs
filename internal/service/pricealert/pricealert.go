@@ -21,7 +21,7 @@ func NewClient(telegram telegram.Client, productRepo product.Client) (*Client, e
 	return c, nil
 }
 
-func (c *Client) CheckPrice(ctx context.Context, productUrl string, threshold int64) {
+func (c *Client) CheckPrice(ctx context.Context, productUrl string) {
 	item, err := c.productRepo.GetItem(ctx, productUrl)
 	if err != nil {
 		log.Err(err).Msg(err.Error())

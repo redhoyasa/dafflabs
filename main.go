@@ -119,8 +119,8 @@ func createScheduler() (c *cron.Cron) {
 
 	c = cron.New()
 	c.AddFunc("30 9 * * *", func() {
-		svc.CheckPrice(context.Background(), "https://www.tokopedia.com/matchamu/matchamu-matcha-latte-20pcs", 100000)
-		svc.CheckPrice(context.Background(), "https://www.tokopedia.com/unicharm/tokocabang-mamypoko-popok-perekat-royal-soft-nb-52-2-packs", 170000)
+		svc.CheckPrice(context.Background(), "https://www.tokopedia.com/matchamu/matchamu-matcha-latte-20pcs")
+		svc.CheckPrice(context.Background(), "https://www.tokopedia.com/unicharm/tokocabang-mamypoko-popok-perekat-royal-soft-nb-52-2-packs")
 	})
 	return
 }
