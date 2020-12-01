@@ -1,4 +1,4 @@
-// +heroku goVersion go1.14
+// +heroku goVersion go1.14.11
 module github.com/redhoyasa/dafflabs
 
 go 1.14
