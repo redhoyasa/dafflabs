@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 	qm "github.com/quickmetrics/qckm-go"
 	telegram "github.com/redhoyasa/dafflabs/internal/client/telegram"
+	"github.com/redhoyasa/dafflabs/internal/migration"
 	"github.com/redhoyasa/dafflabs/internal/repository/tokopedia"
 	"github.com/redhoyasa/dafflabs/internal/service/pricealert"
 	"github.com/robfig/cron/v3"
@@ -52,6 +53,11 @@ func main() {
 	qm.Init(qm.Options{
 		ApiKey: viper.GetString("QUICKMETRICS_KEY"),
 	})
+
+	err = migration.ExecuteMigration(viper.GetString("DATABASE_URL"))
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
 
 	e := createHTTPServer()
 	c := createScheduler()

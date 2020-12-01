@@ -1,0 +1,11 @@
+version: "3"
+services:
+  postgres:
+    image: postgres:11-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: dafflabs
+      POSTGRES_DB: dafflabs
+      POSTGRES_PASSWORD: dafflabs
+    ports:
+      - 5432:5432
