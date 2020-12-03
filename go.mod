@@ -4,6 +4,7 @@ module github.com/redhoyasa/dafflabs
 go 1.14
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/PuerkitoBio/goquery v1.6.0 // indirect
 	github.com/ad2games/vcr-go v0.0.0-20180813145912-faa03fdbd7ac
 	github.com/antchfx/htmlquery v1.2.3 // indirect
@@ -13,8 +14,10 @@ require (
 	github.com/gocolly/colly v1.2.0
 	github.com/gojektech/heimdall/v6 v6.1.0
 	github.com/golang-migrate/migrate/v4 v4.14.1
+	github.com/jmoiron/sqlx v1.2.0
 	github.com/kennygrant/sanitize v1.2.4 // indirect
 	github.com/labstack/echo/v4 v4.1.17
+	github.com/lib/pq v1.9.0 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/quickmetrics/qckm-go v1.2.3
 	github.com/robfig/cron/v3 v3.0.0

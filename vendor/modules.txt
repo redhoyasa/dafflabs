@@ -1,3 +1,6 @@
+# github.com/DATA-DOG/go-sqlmock v1.5.0
+## explicit
+github.com/DATA-DOG/go-sqlmock
 # github.com/DataDog/datadog-go v3.7.1+incompatible
 github.com/DataDog/datadog-go/statsd
 # github.com/PuerkitoBio/goquery v1.6.0
@@ -80,6 +83,10 @@ github.com/hashicorp/hcl/hcl/token
 github.com/hashicorp/hcl/json/parser
 github.com/hashicorp/hcl/json/scanner
 github.com/hashicorp/hcl/json/token
+# github.com/jmoiron/sqlx v1.2.0
+## explicit
+github.com/jmoiron/sqlx
+github.com/jmoiron/sqlx/reflectx
 # github.com/kennygrant/sanitize v1.2.4
 ## explicit
 github.com/kennygrant/sanitize
@@ -89,7 +96,8 @@ github.com/labstack/echo/v4
 # github.com/labstack/gommon v0.3.0
 github.com/labstack/gommon/color
 github.com/labstack/gommon/log
-# github.com/lib/pq v1.8.0
+# github.com/lib/pq v1.9.0
+## explicit
 github.com/lib/pq
 github.com/lib/pq/oid
 github.com/lib/pq/scram

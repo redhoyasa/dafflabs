@@ -1,6 +1,7 @@
 CREATE TABLE wishlists (
-    wishlist_id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     customer_ref_id VARCHAR(100),
+    product_name VARCHAR(128),
     current_price INT,
     original_price INT,
     source VARCHAR(100),
