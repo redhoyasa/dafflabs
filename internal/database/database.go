@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"github.com/jmoiron/sqlx"
-	"os"
 )
 
 const (
@@ -24,8 +23,8 @@ type Conn struct {
 	Database
 }
 
-func NewConn() (db Database, err error) {
-	conn, err := sqlx.Connect(Driver, os.Getenv("DATABASE_URL"))
+func NewConn(databaseUrl string) (db Database, err error) {
+	conn, err := sqlx.Connect(Driver, databaseUrl)
 
 	if err != nil {
 		return

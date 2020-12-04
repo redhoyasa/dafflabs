@@ -11,11 +11,10 @@ type WishlistRepo struct {
 	db database.Database
 }
 
-func NewWishlistRepo(db database.Database) (*WishlistRepo, error) {
-	repo := new(WishlistRepo)
-	repo.db = db
-
-	return repo, nil
+func NewWishlistRepo(db database.Database) *WishlistRepo {
+	return &WishlistRepo{
+		db: db,
+	}
 }
 
 func (w *WishlistRepo) Insert(wishlist wishlist.Wishlist) (err error) {
@@ -27,7 +26,7 @@ func (w *WishlistRepo) Insert(wishlist wishlist.Wishlist) (err error) {
 					original_price, 
 					source
 				) VALUES (
-					?, ?, ?, ?, ?
+					$1, $2, $3, $4, $5
 				)`)
 
 	tx, err := w.db.Begin()
@@ -56,7 +55,7 @@ func (w *WishlistRepo) FetchByCustomer(customerRefID string) (wishlists []wishli
 		FROM wishlists
 		WHERE
 			is_deleted = 'false'
-			AND customer_ref_id = ?
+			AND customer_ref_id = $1
 	`)
 
 	rows, err := w.db.QueryContext(context.Background(), query, customerRefID)

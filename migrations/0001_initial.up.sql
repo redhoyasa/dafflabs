@@ -7,5 +7,6 @@ CREATE TABLE wishlists (
     source VARCHAR(100),
     is_deleted BOOLEAN,
     created_at TIMESTAMP,
-    updated_at TIMESTAMP
+    updated_at TIMESTAMP,
+    UNIQUE (customer_ref_id, source)
 );

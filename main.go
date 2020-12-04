@@ -7,9 +7,13 @@ import (
 	"github.com/labstack/echo/v4"
 	qm "github.com/quickmetrics/qckm-go"
 	telegram "github.com/redhoyasa/dafflabs/internal/client/telegram"
+	"github.com/redhoyasa/dafflabs/internal/database"
+	"github.com/redhoyasa/dafflabs/internal/http/handler"
 	"github.com/redhoyasa/dafflabs/internal/migration"
+	"github.com/redhoyasa/dafflabs/internal/repository"
 	"github.com/redhoyasa/dafflabs/internal/repository/tokopedia"
 	"github.com/redhoyasa/dafflabs/internal/service/pricealert"
+	"github.com/redhoyasa/dafflabs/internal/service/wishlist"
 	"github.com/robfig/cron/v3"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -99,9 +103,22 @@ func main() {
 }
 
 func createHTTPServer() (e *echo.Echo) {
+
+	tokopediaClient, err := tokopedia.NewClient(hystrix.NewClient())
+	db, err := database.NewConn(viper.GetString("DATABASE_URL"))
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+	repo := repository.NewWishlistRepo(db)
+	svc := wishlist.NewWishlistSvc(repo, tokopediaClient)
+	h := handler.NewHandler(svc)
+
 	e = echo.New()
 	e.GET("/api/ping", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, &PingResponse{Ping: "pong"})
+	})
+	e.POST("/api/wishlist", func(c echo.Context) error {
+		return h.AddWishlist(c)
 	})
 	return
 }
