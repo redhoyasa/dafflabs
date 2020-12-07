@@ -20,8 +20,9 @@ type Handler struct {
 }
 
 type response struct {
-	Data  interface{} `json:"data"`
-	Error *string     `json:"error"`
+	httpCode int
+	Data     interface{} `json:"data"`
+	Error    *string     `json:"error"`
 }
 
 func NewHandler(wishlistSvc wishlistSvcIFace) *Handler {
@@ -35,40 +36,52 @@ func (h *Handler) AddWishlist(c echo.Context) error {
 	requestBody := echoRequest.Body
 	defer requestBody.Close()
 
+	var wishlist wishlist.Wishlist
+	resp := response{}
+
 	payload, err := ioutil.ReadAll(requestBody)
 	if err != nil {
-		c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSONCharsetUTF8)
-		log.Err(err).Msg(err.Error())
-		return echo.NewHTTPError(http.StatusInternalServerError, "error")
-	}
-
-	var wishlist wishlist.Wishlist
-
-	if err := json.Unmarshal(payload, &wishlist); err != nil {
-		c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSONCharsetUTF8)
-		log.Err(err).Msg(err.Error())
-		return echo.NewHTTPError(http.StatusInternalServerError, "error")
-	}
-
-	var resp response
-	err = h.svc.Add(&wishlist)
-	if err != nil {
-		c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSONCharsetUTF8)
 		log.Err(err).Msg(err.Error())
 		errString := err.Error()
 		resp.Error = &errString
-		_, err := json.Marshal(&resp)
-		if err != nil {
-			return err
-		}
-		return echo.NewHTTPError(http.StatusInternalServerError, resp)
+		resp.httpCode = http.StatusInternalServerError
+		return h.writeResponse(c, resp)
+	}
+
+	if err := json.Unmarshal(payload, &wishlist); err != nil {
+		log.Err(err).Msg(err.Error())
+		errString := err.Error()
+		resp.Error = &errString
+		resp.httpCode = http.StatusInternalServerError
+		return h.writeResponse(c, resp)
+	}
+
+	err = h.svc.Add(&wishlist)
+	if err != nil {
+		log.Err(err).Msg(err.Error())
+		errString := err.Error()
+		resp.Error = &errString
+		resp.httpCode = http.StatusInternalServerError
+		return h.writeResponse(c, resp)
 	}
 
 	resp.Data = wishlist
-	_, err = json.Marshal(&resp)
+	resp.httpCode = http.StatusOK
+
+	return h.writeResponse(c, resp)
+}
+
+func (h *Handler) writeResponse(c echo.Context, resp response) error {
+	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSONCharsetUTF8)
+
+	_, err := json.Marshal(&resp)
 	if err != nil {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, resp)
+	if resp.Error != nil {
+		return echo.NewHTTPError(resp.httpCode, resp)
+	}
+
+	return c.JSON(resp.httpCode, resp)
 }

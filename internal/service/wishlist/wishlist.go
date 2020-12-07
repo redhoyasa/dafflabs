@@ -58,9 +58,17 @@ func (w *wishlistSvc) Add(wishlist *Wishlist) error {
 }
 
 func (w *wishlistSvc) FetchByCustomer(customerRefID string) ([]Wishlist, error) {
-	return nil, nil
+	wishlist, err := w.repo.FetchByCustomer(customerRefID)
+	if err != nil {
+		return nil, err
+	}
+	return wishlist, nil
 }
 
 func (w *wishlistSvc) FetchAll() ([]Wishlist, error) {
-	return nil, nil
+	wishlist, err := w.repo.FetchAll()
+	if err != nil {
+		return nil, err
+	}
+	return wishlist, nil
 }
