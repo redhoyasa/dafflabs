@@ -71,6 +71,29 @@ func (h *Handler) AddWishlist(c echo.Context) error {
 	return h.writeResponse(c, resp)
 }
 
+func (h *Handler) FetchCustomerWishlist(c echo.Context) error {
+	echoRequest := c.Request()
+	requestBody := echoRequest.Body
+	defer requestBody.Close()
+	customerRefID := c.QueryParam("customer_ref_id")
+
+	resp := response{}
+
+	wishlist, err := h.svc.FetchByCustomer(customerRefID)
+	if err != nil {
+		log.Err(err).Msg(err.Error())
+		errString := err.Error()
+		resp.Error = &errString
+		resp.httpCode = http.StatusInternalServerError
+		return h.writeResponse(c, resp)
+	}
+
+	resp.Data = wishlist
+	resp.httpCode = http.StatusOK
+
+	return c.JSON(resp.httpCode, resp)
+}
+
 func (h *Handler) writeResponse(c echo.Context, resp response) error {
 	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSONCharsetUTF8)
 

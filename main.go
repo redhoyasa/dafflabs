@@ -120,6 +120,9 @@ func createHTTPServer() (e *echo.Echo) {
 	e.POST("/api/wishlist", func(c echo.Context) error {
 		return h.AddWishlist(c)
 	})
+	e.GET("/api/wishlist", func(c echo.Context) error {
+		return h.FetchCustomerWishlist(c)
+	})
 	return
 }
 
