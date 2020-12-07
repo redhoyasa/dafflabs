@@ -4,7 +4,7 @@ all: build fmt vet lint test test-cover-html vendor
 SRC_PKGS=$(shell go list ./... | grep -v "vendor")
 APP_EXECUTABLE=dafflabs
 
-build: compile fmt vet lint
+build: test compile fmt vet lint
 
 .PHONY: compile
 compile:

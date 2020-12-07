@@ -3,6 +3,7 @@ package wishlist
 import (
 	"context"
 	"github.com/redhoyasa/dafflabs/internal/repository/product"
+	"github.com/satori/go.uuid"
 )
 
 type wishlistRepoIFace interface {
@@ -12,7 +13,7 @@ type wishlistRepoIFace interface {
 }
 
 type Wishlist struct {
-	WishlistID    int64  `json:"id"`
+	WishlistID    string `json:"id"`
 	CustomerRefID string `json:"customer_ref_id"`
 	ProductName   string `json:"product_name"`
 	CurrentPrice  int64  `json:"current_price"`
@@ -36,17 +37,20 @@ func NewWishlistSvc(repo wishlistRepoIFace, productClient product.Client) *wishl
 	}
 }
 
-func (w *wishlistSvc) Add(wishlist Wishlist) error {
+func (w *wishlistSvc) Add(wishlist *Wishlist) error {
 	item, err := w.productClient.GetItem(context.Background(), wishlist.Source)
 	if err != nil {
 		return err
 	}
 
+	id := uuid.NewV4()
+
+	wishlist.WishlistID = id.String()
 	wishlist.ProductName = item.Name
 	wishlist.OriginalPrice = item.OriginalPrice
 	wishlist.CurrentPrice = item.CurrentPrice
 
-	err = w.repo.Insert(wishlist)
+	err = w.repo.Insert(*wishlist)
 	if err != nil {
 		return err
 	}

@@ -20,13 +20,14 @@ func NewWishlistRepo(db database.Database) *WishlistRepo {
 func (w *WishlistRepo) Insert(wishlist wishlist.Wishlist) (err error) {
 	query := fmt.Sprintf(
 		`INSERT INTO wishlists(
+					id,
 					customer_ref_id, 
 					product_name, 
 					current_price, 
 					original_price, 
 					source
 				) VALUES (
-					$1, $2, $3, $4, $5
+					$1, $2, $3, $4, $5, $6
 				)`)
 
 	tx, err := w.db.Begin()
@@ -34,7 +35,7 @@ func (w *WishlistRepo) Insert(wishlist wishlist.Wishlist) (err error) {
 		return
 	}
 
-	if _, err = tx.Exec(query, wishlist.CustomerRefID, wishlist.ProductName, wishlist.CurrentPrice, wishlist.OriginalPrice, wishlist.Source); err != nil {
+	if _, err = tx.Exec(query, wishlist.WishlistID, wishlist.CustomerRefID, wishlist.ProductName, wishlist.CurrentPrice, wishlist.OriginalPrice, wishlist.Source); err != nil {
 		_ = tx.Rollback()
 		return
 	}

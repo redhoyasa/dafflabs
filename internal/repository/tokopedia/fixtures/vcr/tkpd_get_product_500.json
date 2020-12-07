@@ -1,0 +1,52 @@
+{
+  "Episodes": [
+    {
+      "Request": {
+        "Method": "GET",
+        "URL": "https://scraper.dafflabs.workers.dev/product/tokopedia?url=https%3A%2F%2Fwww.tokopedia.com%2Fmatchamu%2Fmatchamu-matcha-latte-20pcsss",
+        "Body": null
+      },
+      "Response": {
+        "Status": "500 Internal Server Error",
+        "StatusCode": 500,
+        "ContentLength": 54,
+        "Header": {
+          "Cf-Ray": [
+            "5fc41d576daeeb9d-LAX"
+          ],
+          "Cf-Request-Id": [
+            "06ce70aaa00000eb9d491df000000001"
+          ],
+          "Content-Length": [
+            "54"
+          ],
+          "Content-Type": [
+            "application/json;charset=UTF-8"
+          ],
+          "Date": [
+            "Fri, 04 Dec 2020 08:21:34 GMT"
+          ],
+          "Expect-Ct": [
+            "max-age=604800, report-uri=\"https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct\""
+          ],
+          "Nel": [
+            "{\"report_to\":\"cf-nel\",\"max_age\":604800}"
+          ],
+          "Report-To": [
+            "{\"endpoints\":[{\"url\":\"https:\\/\\/a.nel.cloudflare.com\\/report?s=7YTR0mEukAdLJUPfRD5naBwxVwmQ16tEOuaAA%2BnAHx3t2NscKulYvgxAMHdOoTO68lH0x23FjUHf3yFGzEYxe6bu2LJ9wM5YCBBB7uuuDcFHF1RBxThl7BsXecWf\"}],\"group\":\"cf-nel\",\"max_age\":604800}"
+          ],
+          "Server": [
+            "cloudflare"
+          ],
+          "Set-Cookie": [
+            "__cfduid=d05fd0a0bb4383a3fc8619cd8c0e7d33a1607070093; expires=Sun, 03-Jan-21 08:21:33 GMT; path=/; domain=.dafflabs.workers.dev; HttpOnly; SameSite=Lax"
+          ],
+          "Vary": [
+            "Accept-Encoding"
+          ]
+        },
+        "Body": "eyJzdWNjZXNzIjpmYWxzZSwiZXJyb3IiOiJFcnJvcjogdW5wYXJzZWFibGUgcHJvZHVjdCJ9"
+      }
+    }
+  ]
+}

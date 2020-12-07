@@ -34,4 +34,21 @@ func TestClient_GetItem(t *testing.T) {
 		assert.NotNil(t, item)
 		assert.Equal(t, expected, item)
 	})
+
+	t.Run("Should return error", func(t *testing.T) {
+		vcr.Start("tkpd_get_product_500", nil)
+		defer vcr.Stop()
+
+		c := colly.NewCollector()
+		c.Async = false
+
+		client := Client{
+			httpClient: hystrix.NewClient(),
+		}
+
+		item, err := client.GetItem(context.Background(), "https://www.tokopedia.com/matchamu/matchamu-matcha-latte-20pcsss")
+		assert.NotNil(t, err)
+		assert.Nil(t, item)
+		assert.Equal(t, "failed to fetch product", err.Error())
+	})
 }

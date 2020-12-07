@@ -20,7 +20,7 @@ func TestWishlistRepo_Insert(t *testing.T) {
 		sqlMock.ExpectBegin()
 		sqlMock.
 			ExpectExec("INSERT INTO wishlists").
-			WithArgs("12342", "PS 5", 100, 1000, "amazon.com").
+			WithArgs("6ba7b810-9dad-11d1-80b4-00c04fd430c8", "12342", "PS 5", 100, 1000, "amazon.com").
 			WillReturnResult(sqlmock.NewResult(1, 1))
 		sqlMock.ExpectCommit()
 
@@ -29,6 +29,7 @@ func TestWishlistRepo_Insert(t *testing.T) {
 		}
 
 		w := wishlist.Wishlist{
+			WishlistID:    "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
 			CustomerRefID: "12342",
 			ProductName:   "PS 5",
 			CurrentPrice:  100,

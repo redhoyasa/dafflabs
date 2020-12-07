@@ -3,6 +3,7 @@ package tokopedia
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/gojektech/heimdall/v6/hystrix"
 	"github.com/redhoyasa/dafflabs/internal/repository/product"
 	"io/ioutil"
@@ -18,7 +19,8 @@ const (
 )
 
 type scraperResponse struct {
-	Data tokopediaProduct `json:"data"`
+	Data  tokopediaProduct `json:"data"`
+	Error string           `json:"error"`
 }
 
 type tokopediaProduct struct {
@@ -49,6 +51,10 @@ func (c *Client) GetItem(ctx context.Context, source string) (item *product.Item
 	body, _ := ioutil.ReadAll(res.Body)
 	var scraperResponse scraperResponse
 	_ = json.Unmarshal(body, &scraperResponse)
+
+	if scraperResponse.Error != "" {
+		return nil, errors.New("failed to fetch product")
+	}
 	return toItemModel(scraperResponse.Data, source), nil
 }
 

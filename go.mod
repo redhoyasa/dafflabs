@@ -23,6 +23,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.0
 	github.com/rs/zerolog v1.20.0
 	github.com/saintfish/chardet v0.0.0-20120816061221-3af4cd4741ca // indirect
+	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.5.1
 	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
