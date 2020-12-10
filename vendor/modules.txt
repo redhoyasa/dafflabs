@@ -121,7 +121,7 @@ github.com/pmezard/go-difflib/difflib
 github.com/quickmetrics/qckm-go
 # github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0
 github.com/rcrowley/go-metrics
-# github.com/robfig/cron/v3 v3.0.0
+# github.com/robfig/cron/v3 v3.0.1
 ## explicit
 github.com/robfig/cron/v3
 # github.com/rs/zerolog v1.20.0

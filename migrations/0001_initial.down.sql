@@ -1,3 +1,3 @@
 DROP TABLE
-    wishlists
+    wishes
 ;

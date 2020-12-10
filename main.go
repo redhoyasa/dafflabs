@@ -63,8 +63,14 @@ func main() {
 		log.Fatal().Msg(err.Error())
 	}
 
-	e := createHTTPServer()
-	c := createScheduler()
+	db, err := database.NewConn(viper.GetString("DATABASE_URL"))
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+	repo := repository.NewWishRepo(db)
+
+	e := createHTTPServer(repo)
+	c := createScheduler(repo)
 	listenerPort := fmt.Sprintf(":%s", viper.GetString("PORT"))
 
 	var wg sync.WaitGroup
@@ -102,31 +108,29 @@ func main() {
 	log.Info().Msg("FIN")
 }
 
-func createHTTPServer() (e *echo.Echo) {
+func createHTTPServer(wishRepo wishlist.WishlistRepoIFace) (e *echo.Echo) {
 
-	tokopediaClient, err := tokopedia.NewClient(hystrix.NewClient())
-	db, err := database.NewConn(viper.GetString("DATABASE_URL"))
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-	}
-	repo := repository.NewWishlistRepo(db)
-	svc := wishlist.NewWishlistSvc(repo, tokopediaClient)
+	tokopediaClient, _ := tokopedia.NewClient(hystrix.NewClient())
+	svc := wishlist.NewWishlistSvc(wishRepo, tokopediaClient)
 	h := handler.NewHandler(svc)
 
 	e = echo.New()
 	e.GET("/api/ping", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, &PingResponse{Ping: "pong"})
 	})
-	e.POST("/api/wishlist", func(c echo.Context) error {
-		return h.AddWishlist(c)
+	e.POST("/api/wishlist/wish", func(c echo.Context) error {
+		return h.AddWish(c)
 	})
-	e.GET("/api/wishlist", func(c echo.Context) error {
+	e.DELETE("/api/wishlist/wish/:id", func(c echo.Context) error {
+		return h.DeleteWish(c)
+	})
+	e.GET("/api/wishlist/wish/customer/:customer_ref_id", func(c echo.Context) error {
 		return h.FetchCustomerWishlist(c)
 	})
 	return
 }
 
-func createScheduler() (c *cron.Cron) {
+func createScheduler(wishRepo wishlist.WishlistRepoIFace) (c *cron.Cron) {
 	hystrix.NewClient()
 	tokopediaClient, err := tokopedia.NewClient(hystrix.NewClient())
 	if err != nil {
@@ -138,15 +142,13 @@ func createScheduler() (c *cron.Cron) {
 		log.Fatal().Msg(err.Error())
 	}
 
-	svc, err := pricealert.NewClient(*telegramClient, tokopediaClient)
+	svc, err := pricealert.NewClient(*telegramClient, tokopediaClient, wishRepo)
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
-
 	c = cron.New()
-	c.AddFunc("30 9 * * *", func() {
-		svc.CheckPrice(context.Background(), "https://www.tokopedia.com/matchamu/matchamu-matcha-latte-20pcs")
-		svc.CheckPrice(context.Background(), "https://www.tokopedia.com/unicharm/tokocabang-mamypoko-popok-perekat-royal-soft-nb-52-2-packs")
+	c.AddFunc("* * * * *", func() {
+		svc.GeneratePriceChecker()
 	})
 	return
 }

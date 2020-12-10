@@ -7,19 +7,19 @@ import (
 	"github.com/redhoyasa/dafflabs/internal/service/wishlist"
 )
 
-type WishlistRepo struct {
+type WishRepo struct {
 	db database.Database
 }
 
-func NewWishlistRepo(db database.Database) *WishlistRepo {
-	return &WishlistRepo{
+func NewWishRepo(db database.Database) *WishRepo {
+	return &WishRepo{
 		db: db,
 	}
 }
 
-func (w *WishlistRepo) Insert(wishlist wishlist.Wishlist) (err error) {
+func (w *WishRepo) Insert(wish wishlist.Wish) (err error) {
 	query := fmt.Sprintf(
-		`INSERT INTO wishlists(
+		`INSERT INTO wishes(
 					id,
 					customer_ref_id, 
 					product_name, 
@@ -35,7 +35,7 @@ func (w *WishlistRepo) Insert(wishlist wishlist.Wishlist) (err error) {
 		return
 	}
 
-	if _, err = tx.Exec(query, wishlist.WishlistID, wishlist.CustomerRefID, wishlist.ProductName, wishlist.CurrentPrice, wishlist.OriginalPrice, wishlist.Source); err != nil {
+	if _, err = tx.Exec(query, wish.WishID, wish.CustomerRefID, wish.ProductName, wish.CurrentPrice, wish.OriginalPrice, wish.Source); err != nil {
 		_ = tx.Rollback()
 		return
 	}
@@ -44,7 +44,7 @@ func (w *WishlistRepo) Insert(wishlist wishlist.Wishlist) (err error) {
 	return
 }
 
-func (w *WishlistRepo) FetchByCustomer(customerRefID string) (wishlists []wishlist.Wishlist, err error) {
+func (w *WishRepo) FetchByCustomer(customerRefID string) (wishes []wishlist.Wish, err error) {
 	query := fmt.Sprintf(`
 		SELECT 
 			id,
@@ -52,8 +52,9 @@ func (w *WishlistRepo) FetchByCustomer(customerRefID string) (wishlists []wishli
 			product_name,
 			current_price,
 			original_price,
-			source
-		FROM wishlists
+			source,
+			updated_at
+		FROM wishes
 		WHERE
 			is_deleted = 'false'
 			AND customer_ref_id = $1
@@ -67,25 +68,26 @@ func (w *WishlistRepo) FetchByCustomer(customerRefID string) (wishlists []wishli
 	defer rows.Close()
 
 	for rows.Next() {
-		wishlist := wishlist.Wishlist{}
+		wish := wishlist.Wish{}
 		err := rows.Scan(
-			&wishlist.WishlistID,
-			&wishlist.CustomerRefID,
-			&wishlist.ProductName,
-			&wishlist.CurrentPrice,
-			&wishlist.OriginalPrice,
-			&wishlist.Source)
+			&wish.WishID,
+			&wish.CustomerRefID,
+			&wish.ProductName,
+			&wish.CurrentPrice,
+			&wish.OriginalPrice,
+			&wish.Source,
+			&wish.UpdatedAt)
 
 		if err != nil {
 			return nil, err
 		}
 
-		wishlists = append(wishlists, wishlist)
+		wishes = append(wishes, wish)
 	}
 	return
 }
 
-func (w *WishlistRepo) FetchAll() (wishlists []wishlist.Wishlist, err error) {
+func (w *WishRepo) FetchAll() (wishes []wishlist.Wish, err error) {
 	query := fmt.Sprintf(`
 		SELECT 
 			id,
@@ -93,8 +95,9 @@ func (w *WishlistRepo) FetchAll() (wishlists []wishlist.Wishlist, err error) {
 			product_name,
 			current_price,
 			original_price,
-			source
-		FROM wishlists
+			source,
+			updated_at
+		FROM wishes
 		WHERE
 			is_deleted = 'false'
 	`)
@@ -107,20 +110,93 @@ func (w *WishlistRepo) FetchAll() (wishlists []wishlist.Wishlist, err error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		wishlist := wishlist.Wishlist{}
+		wish := wishlist.Wish{}
 		err := rows.Scan(
-			&wishlist.WishlistID,
-			&wishlist.CustomerRefID,
-			&wishlist.ProductName,
-			&wishlist.CurrentPrice,
-			&wishlist.OriginalPrice,
-			&wishlist.Source)
+			&wish.WishID,
+			&wish.CustomerRefID,
+			&wish.ProductName,
+			&wish.CurrentPrice,
+			&wish.OriginalPrice,
+			&wish.Source,
+			&wish.UpdatedAt)
 
 		if err != nil {
 			return nil, err
 		}
 
-		wishlists = append(wishlists, wishlist)
+		wishes = append(wishes, wish)
 	}
 	return
+}
+
+func (w *WishRepo) Fetch(wishID string) (wish *wishlist.Wish, err error) {
+	query := fmt.Sprintf(`
+		SELECT 
+			id,
+			customer_ref_id,
+			product_name,
+			current_price,
+			original_price,
+			source
+		FROM wishes
+		WHERE
+			id = $1
+	`)
+
+	row := w.db.QueryRowContext(context.Background(), query, wishID)
+	if err != nil {
+		return nil, err
+	}
+
+	wish = &wishlist.Wish{}
+	if err = row.Scan(&wish.WishID, &wish.CustomerRefID, &wish.ProductName, &wish.CurrentPrice, &wish.OriginalPrice, &wish.Source); err != nil {
+		return nil, err
+	}
+
+	return
+}
+
+func (w *WishRepo) Delete(wishID string) (err error) {
+	query := fmt.Sprintf("DELETE FROM wishes WHERE id = $1")
+
+	tx, err := w.db.Begin()
+	if err != nil {
+		return
+	}
+
+	if _, err = tx.Exec(query, wishID); err != nil {
+		_ = tx.Rollback()
+		return
+	}
+
+	_ = tx.Commit()
+
+	return nil
+}
+
+func (w *WishRepo) Update(wishID string, originalPrice, currentPrice, discountRate int64) (err error) {
+	query := fmt.Sprintf(`
+			UPDATE wishes 
+			SET
+				original_price = $2,
+				current_price = $3,
+				discount_rate = $4,
+				updated_at = NOW()
+			WHERE 
+				id = $1
+			`)
+
+	tx, err := w.db.Begin()
+	if err != nil {
+		return
+	}
+
+	if _, err = tx.Exec(query, wishID, originalPrice, currentPrice, discountRate); err != nil {
+		_ = tx.Rollback()
+		return
+	}
+
+	_ = tx.Commit()
+
+	return nil
 }
