@@ -10,7 +10,7 @@ import (
 type WishlistRepoIFace interface {
 	Insert(wishlist Wish) error
 	Fetch(wishID string) (*Wish, error)
-	Update(wishID string, originalPrice, currentPrice, discountRate int64) error
+	Update(wishID string, originalPrice, currentPrice int64, discountRate float64) error
 	Delete(wishID string) error
 	FetchByCustomer(customerRefID string) ([]Wish, error)
 	FetchAll() ([]Wish, error)
@@ -22,7 +22,7 @@ type Wish struct {
 	ProductName   string     `json:"product_name"`
 	CurrentPrice  int64      `json:"current_price"`
 	OriginalPrice int64      `json:"original_price"`
-	DiscountRate  int64      `json:"discount_rate"`
+	DiscountRate  float64    `json:"discount_rate"`
 	Source        string     `json:"source"`
 	UpdatedAt     *time.Time `json:"last_seen_at"`
 }
@@ -51,6 +51,7 @@ func (w *wishlistSvc) Add(wishlist *Wish) error {
 	wishlist.ProductName = item.Name
 	wishlist.OriginalPrice = item.OriginalPrice
 	wishlist.CurrentPrice = item.CurrentPrice
+	wishlist.DiscountRate = item.DiscountRate
 
 	err = w.repo.Insert(*wishlist)
 	if err != nil {

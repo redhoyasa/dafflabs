@@ -10,5 +10,6 @@ type Item struct {
 	Name          string
 	CurrentPrice  int64
 	OriginalPrice int64
+	DiscountRate  float64
 	Source        string
 }

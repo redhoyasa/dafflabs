@@ -24,10 +24,10 @@ type scraperResponse struct {
 }
 
 type tokopediaProduct struct {
-	Name          string `json:"name"`
-	CurrentPrice  int64  `json:"current_price"`
-	OriginalPrice int64  `json:"original_price"`
-	DiscountRate  int64  `json:"discount_rate"`
+	Name          string  `json:"name"`
+	CurrentPrice  int64   `json:"current_price"`
+	OriginalPrice int64   `json:"original_price"`
+	DiscountRate  float64 `json:"discount_rate"`
 }
 
 func NewClient(httpClient *hystrix.Client) (*Client, error) {
@@ -64,5 +64,6 @@ func toItemModel(tkpdProduct tokopediaProduct, source string) (item *product.Ite
 	item.Source = source
 	item.CurrentPrice = tkpdProduct.CurrentPrice
 	item.OriginalPrice = tkpdProduct.OriginalPrice
+	item.DiscountRate = tkpdProduct.DiscountRate
 	return item
 }

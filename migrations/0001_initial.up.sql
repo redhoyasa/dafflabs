@@ -4,7 +4,7 @@ CREATE TABLE wishes (
     product_name VARCHAR(128) NOT NULL,
     current_price INT NOT NULL,
     original_price INT NOT NULL,
-    discount_rate INT,
+    discount_rate NUMERIC(5,2),
     source VARCHAR(100) NOT NULL,
     is_deleted BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT NOW(),

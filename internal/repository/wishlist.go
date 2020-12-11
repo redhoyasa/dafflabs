@@ -24,10 +24,11 @@ func (w *WishRepo) Insert(wish wishlist.Wish) (err error) {
 					customer_ref_id, 
 					product_name, 
 					current_price, 
-					original_price, 
+					original_price,
+					discount_rate,
 					source
 				) VALUES (
-					$1, $2, $3, $4, $5, $6
+					$1, $2, $3, $4, $5, $6, $7
 				)`)
 
 	tx, err := w.db.Begin()
@@ -35,7 +36,7 @@ func (w *WishRepo) Insert(wish wishlist.Wish) (err error) {
 		return
 	}
 
-	if _, err = tx.Exec(query, wish.WishID, wish.CustomerRefID, wish.ProductName, wish.CurrentPrice, wish.OriginalPrice, wish.Source); err != nil {
+	if _, err = tx.Exec(query, wish.WishID, wish.CustomerRefID, wish.ProductName, wish.CurrentPrice, wish.OriginalPrice, wish.DiscountRate, wish.Source); err != nil {
 		_ = tx.Rollback()
 		return
 	}
@@ -52,6 +53,7 @@ func (w *WishRepo) FetchByCustomer(customerRefID string) (wishes []wishlist.Wish
 			product_name,
 			current_price,
 			original_price,
+			discount_rate,
 			source,
 			updated_at
 		FROM wishes
@@ -75,6 +77,7 @@ func (w *WishRepo) FetchByCustomer(customerRefID string) (wishes []wishlist.Wish
 			&wish.ProductName,
 			&wish.CurrentPrice,
 			&wish.OriginalPrice,
+			&wish.DiscountRate,
 			&wish.Source,
 			&wish.UpdatedAt)
 
@@ -95,6 +98,7 @@ func (w *WishRepo) FetchAll() (wishes []wishlist.Wish, err error) {
 			product_name,
 			current_price,
 			original_price,
+			discount_rate,
 			source,
 			updated_at
 		FROM wishes
@@ -117,6 +121,7 @@ func (w *WishRepo) FetchAll() (wishes []wishlist.Wish, err error) {
 			&wish.ProductName,
 			&wish.CurrentPrice,
 			&wish.OriginalPrice,
+			&wish.DiscountRate,
 			&wish.Source,
 			&wish.UpdatedAt)
 
@@ -137,6 +142,7 @@ func (w *WishRepo) Fetch(wishID string) (wish *wishlist.Wish, err error) {
 			product_name,
 			current_price,
 			original_price,
+			discount_rate,
 			source
 		FROM wishes
 		WHERE
@@ -149,7 +155,7 @@ func (w *WishRepo) Fetch(wishID string) (wish *wishlist.Wish, err error) {
 	}
 
 	wish = &wishlist.Wish{}
-	if err = row.Scan(&wish.WishID, &wish.CustomerRefID, &wish.ProductName, &wish.CurrentPrice, &wish.OriginalPrice, &wish.Source); err != nil {
+	if err = row.Scan(&wish.WishID, &wish.CustomerRefID, &wish.ProductName, &wish.CurrentPrice, &wish.OriginalPrice, &wish.DiscountRate, &wish.Source); err != nil {
 		return nil, err
 	}
 
@@ -174,7 +180,7 @@ func (w *WishRepo) Delete(wishID string) (err error) {
 	return nil
 }
 
-func (w *WishRepo) Update(wishID string, originalPrice, currentPrice, discountRate int64) (err error) {
+func (w *WishRepo) Update(wishID string, originalPrice, currentPrice int64, discountRate float64) (err error) {
 	query := fmt.Sprintf(`
 			UPDATE wishes 
 			SET
