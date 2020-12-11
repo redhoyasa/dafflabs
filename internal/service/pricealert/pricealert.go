@@ -60,7 +60,7 @@ func (c *Client) CheckPrice(ctx context.Context, wishID string) error {
 		return err
 	}
 
-	if item.CurrentPrice < wish.CurrentPrice {
+	if c.isPriceDrop(*wish, *item) {
 		msg := fmt.Sprintf("Product %s di %s harganya cuma %d", item.Name, item.Source, item.CurrentPrice)
 		err = c.telegram.SendMessage(msg)
 
@@ -83,4 +83,8 @@ func (c *Client) CheckPrice(ctx context.Context, wishID string) error {
 	qm.Event("wishlist.checked", 1)
 
 	return nil
+}
+
+func (c *Client) isPriceDrop(wish wishlist.Wish, item product.Item) bool {
+	return item.CurrentPrice < wish.CurrentPrice
 }
