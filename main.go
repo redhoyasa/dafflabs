@@ -121,18 +121,18 @@ func createHTTPServer(wishRepo wishlist.WishlistRepoIFace) (e *echo.Echo) {
 		return c.JSON(http.StatusOK, &PingResponse{Ping: "pong"})
 	})
 
-	wishlist := api.Group("/wishlist")
-	wishlist.Use(middleware.KeyAuth(func(key string, c echo.Context) (bool, error) {
+	wishlistRoute := api.Group("/wishlistRoute")
+	wishlistRoute.Use(middleware.KeyAuth(func(key string, c echo.Context) (bool, error) {
 		return key == viper.GetString("API_KEY"), nil
 	}))
 
-	wishlist.POST("/wish", func(c echo.Context) error {
+	wishlistRoute.POST("/wish", func(c echo.Context) error {
 		return h.AddWish(c)
 	})
-	wishlist.DELETE("/wish/:id", func(c echo.Context) error {
+	wishlistRoute.DELETE("/wish/:id", func(c echo.Context) error {
 		return h.DeleteWish(c)
 	})
-	wishlist.GET("/wish/customer/:customer_ref_id", func(c echo.Context) error {
+	wishlistRoute.GET("/wish/customer/:customer_ref_id", func(c echo.Context) error {
 		return h.FetchCustomerWishlist(c)
 	})
 	return
