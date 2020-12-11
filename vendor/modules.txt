@@ -28,6 +28,8 @@ github.com/antchfx/xpath
 github.com/cactus/go-statsd-client/statsd
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
+# github.com/dgrijalva/jwt-go v3.2.0+incompatible
+github.com/dgrijalva/jwt-go
 # github.com/fsnotify/fsnotify v1.4.7
 github.com/fsnotify/fsnotify
 # github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
@@ -93,9 +95,12 @@ github.com/kennygrant/sanitize
 # github.com/labstack/echo/v4 v4.1.17
 ## explicit
 github.com/labstack/echo/v4
+github.com/labstack/echo/v4/middleware
 # github.com/labstack/gommon v0.3.0
+github.com/labstack/gommon/bytes
 github.com/labstack/gommon/color
 github.com/labstack/gommon/log
+github.com/labstack/gommon/random
 # github.com/lib/pq v1.9.0
 ## explicit
 github.com/lib/pq

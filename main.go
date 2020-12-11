@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gojektech/heimdall/v6/hystrix"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	qm "github.com/quickmetrics/qckm-go"
 	telegram "github.com/redhoyasa/dafflabs/internal/client/telegram"
 	"github.com/redhoyasa/dafflabs/internal/database"
@@ -115,16 +116,23 @@ func createHTTPServer(wishRepo wishlist.WishlistRepoIFace) (e *echo.Echo) {
 	h := handler.NewHandler(svc)
 
 	e = echo.New()
-	e.GET("/api/ping", func(c echo.Context) error {
+	api := e.Group("/api")
+	api.GET("/api/ping", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, &PingResponse{Ping: "pong"})
 	})
-	e.POST("/api/wishlist/wish", func(c echo.Context) error {
+
+	wishlist := api.Group("/wishlist")
+	wishlist.Use(middleware.KeyAuth(func(key string, c echo.Context) (bool, error) {
+		return key == viper.GetString("API_KEY"), nil
+	}))
+
+	wishlist.POST("/wish", func(c echo.Context) error {
 		return h.AddWish(c)
 	})
-	e.DELETE("/api/wishlist/wish/:id", func(c echo.Context) error {
+	wishlist.DELETE("/wish/:id", func(c echo.Context) error {
 		return h.DeleteWish(c)
 	})
-	e.GET("/api/wishlist/wish/customer/:customer_ref_id", func(c echo.Context) error {
+	wishlist.GET("/wish/customer/:customer_ref_id", func(c echo.Context) error {
 		return h.FetchCustomerWishlist(c)
 	})
 	return
