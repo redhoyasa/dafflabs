@@ -1,0 +1,18 @@
+---
+application:
+  name: "dafflabs"
+  project: "dafflabs"
+  organization: "QoveryCommunity"
+databases:
+- type: "POSTGRESQL"
+  name: "dafflabs"
+  version: "12"
+- type: "REDIS"
+  name: "dafflabs"
+  version: "6"
+routers:
+- name: "main-dafflabs"
+  routes:
+  - application_name: "dafflabs"
+    paths:
+    - "/*"
